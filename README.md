@@ -1,8 +1,6 @@
 # StockSense
 
-**A modular inventory management system that replaces registers and spreadsheets with one live stock ledger.**
-Receipts, deliveries, internal transfers and stock counts all flow through the same engine, so every unit that
-enters, moves or leaves a warehouse is logged and on-hand numbers can never drift.
+**A modular inventory management system that replaces registers and spreadsheets with one live stock ledger.
 
 ![Dashboard](docs/screenshots/dash.png)
 
