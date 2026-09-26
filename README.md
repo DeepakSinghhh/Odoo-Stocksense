@@ -382,33 +382,7 @@ npm run dev        # API on :4000, web app on http://localhost:5173
 
 Demo accounts: **`admin01` / `Admin@1234`** and **`ravi.k` / `Ravi@12345`**.
 
-## Deploy
 
-### Render (free, ~5 minutes)
-1. Sign in at [render.com](https://render.com) with GitHub.
-2. **New → Blueprint** → pick this repo → **Apply**. `render.yaml` configures the build, start command, health
-   check and a random `JWT_SECRET`.
-3. When the service shows **Live**, open its URL. Demo data is created automatically on first start.
-
-Free-tier notes: the service sleeps after 15 minutes idle (the first visit then takes ~30–50s), and there is no
-persistent disk, so data resets to the demo data when the service restarts or redeploys. A free
-[UptimeRobot](https://uptimerobot.com) monitor pinging `/api/health` every 5 minutes keeps it awake.
-
-### Railway / Fly.io / any Docker host
-The `Dockerfile` builds the client and runs the server on port 8080 with the database at `/data/stocksense.db`.
-Mount a volume at `/data` to keep data across deploys.
-
-### Environment variables
-| Variable | Purpose |
-|---|---|
-| `JWT_SECRET` | Signing key for sessions (set a long random value) |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Email the password-reset OTP |
-| `OTP_FALLBACK=off` | Stop showing the OTP on screen when email isn't configured |
-| `RESEED_ON_START=true` | Reset to demo data on every start |
-| `DB_FILE` | Where the SQLite file lives |
-| `PORT` | HTTP port (default 4000) |
-
----
 
 ## How it works
 
