@@ -68,8 +68,8 @@ router.post('/forgot-password', async (req, res) => {
     db.prepare(`INSERT INTO password_resets (user_id, otp_hash, expires_at)
                 VALUES (?, ?, datetime('now', '+10 minutes'))`).run(user.id, bcrypt.hashSync(otp, 8));
     const delivered = await sendOtpMail(user.email, otp);
-    // Without SMTP configured we surface the code so the flow stays demoable.
-    if (!delivered && process.env.NODE_ENV !== 'production') response.devOtp = otp;
+    // Without SMTP we surface the code so the flow stays demoable (set OTP_FALLBACK=off to disable).
+    if (!delivered && process.env.OTP_FALLBACK !== 'off') response.devOtp = otp;
   }
   res.json(response);
 });
