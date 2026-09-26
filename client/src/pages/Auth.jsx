@@ -197,6 +197,7 @@ export function Forgot() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [devOtp, setDevOtp] = useState('');
+  const [notice, setNotice] = useState('');
   const [form, setForm] = useState({ otp: Array(6).fill(''), password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
@@ -210,8 +211,9 @@ export function Forgot() {
     try {
       const r = await api.post('/auth/forgot-password', { email });
       setDevOtp(r.devOtp || '');
+      setNotice(r.message);
       setStep(2);
-      toast(r.message, 'ok', 'OTP sent');
+      toast(r.message, r.delivered ? 'ok' : 'warn', r.delivered ? 'Code sent' : 'Heads up');
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   };
 
@@ -231,7 +233,7 @@ export function Forgot() {
   };
 
   return (
-    <AuthShell title="Reset password" sub={step === 1 ? 'We’ll send a one-time code to your email' : `Code sent to ${email}`}>
+    <AuthShell title="Reset password" sub={step === 1 ? 'We’ll send a one-time code to your email' : `Resetting the password for ${email}`}>
       {step === 1 ? (
         <form onSubmit={request} noValidate>
           {error && <div className="formerr" role="alert">{error}</div>}
@@ -243,7 +245,12 @@ export function Forgot() {
       ) : (
         <form onSubmit={reset} noValidate>
           {error && <div className="formerr" role="alert">{error}</div>}
-          {devOtp && <p className="devnote">no mail server — your code is {devOtp}</p>}
+          {devOtp ? (
+            <div className="otpnotice" role="status">
+              <span>{notice} Here is your code:</span>
+              <b>{devOtp}</b>
+            </div>
+          ) : <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>We emailed a 6-digit code to <b>{email}</b>. Check spam if you don't see it.</p>}
           <Field label="One-time code" error={errors?.otp}>
             <OtpBoxes value={form.otp} onChange={(otp) => setForm({ ...form, otp })} />
           </Field>

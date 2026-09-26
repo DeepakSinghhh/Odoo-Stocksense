@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { db } from '../db.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { parse, fail } from '../middleware/error.js';
-import { sendOtpMail } from '../services/mailer.js';
+import { sendOtpMail, mailConfigured } from '../services/mailer.js';
 
 const router = Router();
 
@@ -61,16 +61,19 @@ router.post('/login', (req, res) => {
 router.post('/forgot-password', async (req, res) => {
   const { email } = parse(z.object({ email: z.string().trim().toLowerCase().email('Enter a valid email') }), req.body);
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-  const response = { message: 'If that email is registered, an OTP is on its way.' };
-  if (user) {
-    const otp = String(crypto.randomInt(100000, 1000000));
-    db.prepare('UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0').run(user.id);
-    db.prepare(`INSERT INTO password_resets (user_id, otp_hash, expires_at)
-                VALUES (?, ?, datetime('now', '+10 minutes'))`).run(user.id, bcrypt.hashSync(otp, 8));
-    const delivered = await sendOtpMail(user.email, otp);
-    // Without SMTP we surface the code so the flow stays demoable (set OTP_FALLBACK=off to disable).
-    if (!delivered && process.env.OTP_FALLBACK !== 'off') response.devOtp = otp;
-  }
+  if (!user) fail(404, 'No account uses that email. Check the spelling or sign up first.', { email: 'No account uses that email' });
+  const otp = String(crypto.randomInt(100000, 1000000));
+  db.prepare('UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0').run(user.id);
+  db.prepare(`INSERT INTO password_resets (user_id, otp_hash, expires_at)
+              VALUES (?, ?, datetime('now', '+10 minutes'))`).run(user.id, bcrypt.hashSync(otp, 8));
+  const delivered = await sendOtpMail(user.email, otp);
+  const response = {
+    delivered,
+    message: delivered ? `Code sent to ${user.email}. Check your inbox (and spam).`
+      : mailConfigured ? "Couldn't send the email right now." : "Email isn't set up on this server.",
+  };
+  // Without email we surface the code so the flow stays usable (set OTP_FALLBACK=off to disable).
+  if (!delivered && process.env.OTP_FALLBACK !== 'off') response.devOtp = otp;
   res.json(response);
 });
 

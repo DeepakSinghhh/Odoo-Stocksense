@@ -737,3 +737,7 @@ tr:hover .pencil { opacity: 1; }
 .live.reconnecting { color: var(--amber); }
 .live.reconnecting i { background: var(--amber); animation: blink 1s infinite; }
 @keyframes ping { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--in) 70%, transparent); } to { box-shadow: 0 0 0 10px transparent; } }
+
+/* Password reset: code shown on screen when the server can't email it */
+.otpnotice { border: 1.5px dashed var(--amber); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; align-items: center; text-align: center; font-size: 13.5px; color: var(--ink-2); background: color-mix(in srgb, var(--amber) 8%, transparent); }
+.otpnotice b { font-family: var(--f-mono); font-size: 28px; letter-spacing: 0.3em; color: var(--amber); }

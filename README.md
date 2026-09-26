@@ -17,24 +17,22 @@ Open it in two windows side by side to watch changes appear live.
    - [Sign in, sign up, reset password](#1-sign-in-sign-up-reset-password)
    - [Getting around](#2-getting-around)
    - [Dashboard](#3-dashboard)
-   - [Receipts: receive goods](#4-receipts--receive-goods-from-a-vendor)
-   - [Deliveries: ship goods](#5-deliveries--ship-goods-to-a-customer)
-   - [Internal transfers](#6-internal-transfers--move-stock-between-locations)
-   - [Adjustments: fix a count](#7-adjustments--fix-a-mismatch-after-a-physical-count)
+   - [Receipts: receive goods](#4-receipts-receive-goods-from-a-vendor)
+   - [Deliveries: ship goods](#5-deliveries-ship-goods-to-a-customer)
+   - [Internal transfers](#6-internal-transfers-move-stock-between-locations)
+   - [Adjustments: fix a count](#7-adjustments-fix-a-mismatch-after-a-physical-count)
    - [Cancel or delete an operation](#8-cancel-or-delete-an-operation)
    - [Products & stock: add, update, edit, delete](#9-products--stock)
    - [Move history](#10-move-history-the-stock-ledger)
-   - [Settings: warehouses & locations](#11-settings--warehouses--locations)
+   - [Settings: warehouses & locations](#11-settings-warehouses--locations)
    - [Profile, theme, logout](#12-profile-theme-logout)
    - [Real-time updates](#13-real-time-updates)
 3. [Status & button reference](#status--button-reference)
 4. [Rules the system enforces](#rules-the-system-enforces)
-5. [5-minute demo script](#5-minute-demo-script)
-6. [Run it locally](#run-it-locally)
-7. [Deploy](#deploy)
-8. [How it works](#how-it-works)
-9. [Tech stack & project structure](#tech-stack--project-structure)
-10. [Testing](#testing)
+5. [Run it locally](#run-it-locally)
+6. [How it works](#how-it-works)
+7. [Tech stack & project structure](#tech-stack--project-structure)
+8. [Testing](#testing)
 
 ---
 
@@ -84,8 +82,12 @@ The rules are checked as you type and again on the server:
 3. Enter the 6-digit code (valid for 10 minutes, 5 attempts), type a new password twice and click **Reset password**.
 4. Sign in with the new password. The old password and the used code stop working.
 
-> If no mail server is configured, the code is shown on the reset screen (the yellow note) and printed in the
-> server console, so the flow always works in a demo. Add `SMTP_*` settings to send it by email.
+> **Email vs on-screen code:** when email is set up (`BREVO_API_KEY` or `SMTP_*` settings) the
+> code arrives in your inbox. Otherwise it's shown in a yellow box on the reset screen, so the flow always works.
+> Unknown emails get a clear *"No account uses that email"* message.
+>
+> On the free live demo, accounts you sign up are erased whenever the server restarts or redeploys. Sign up
+> again, or use `admin01` / `Admin@1234`.
 
 | Step 1: request the code | Step 2: enter code + new password |
 |---|---|
@@ -430,7 +432,7 @@ server/src
   db.js                 schema
   services/stock.js     the engine: references, availability, confirm/check/validate/cancel, stock counts
   services/events.js    real-time broadcast (Server-Sent Events)
-  services/mailer.js    OTP email (falls back to on-screen code)
+  services/mailer.js    OTP email via Brevo API or SMTP (falls back to on-screen code)
   routes/               auth · masters (warehouses, locations, categories, products) · operations · moves · dashboard
   seed.js               demo data played through the real engine
   start.js              production entry: seeds a fresh database, then starts the API
