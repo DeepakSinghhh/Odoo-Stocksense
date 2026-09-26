@@ -1,0 +1,15 @@
+{
+  "name": "stocksense",
+  "private": true,
+  "description": "StockSense — modular inventory management system",
+  "scripts": {
+    "setup": "npm install && npm install --prefix server && npm install --prefix client && npm run seed --prefix server",
+    "seed": "npm run seed --prefix server",
+    "dev": "concurrently -k -n api,web -c red,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
