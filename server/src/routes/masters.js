@@ -87,8 +87,8 @@ router.put('/locations/:id', (req, res) => {
 
 router.delete('/locations/:id', (req, res) => {
   const lid = parse(id, req.params.id);
-  const used = db.prepare(`SELECT 1 FROM moves WHERE from_location_id = ?1 OR to_location_id = ?1
-    UNION SELECT 1 FROM operations WHERE source_location_id = ?1 OR dest_location_id = ?1 LIMIT 1`).get(lid);
+  const used = db.prepare(`SELECT 1 FROM moves WHERE from_location_id = @lid OR to_location_id = @lid
+    UNION SELECT 1 FROM operations WHERE source_location_id = @lid OR dest_location_id = @lid LIMIT 1`).get({ lid });
   if (used) fail(409, 'This location has stock history and cannot be deleted');
   db.prepare(`DELETE FROM locations WHERE id = ? AND type = 'internal'`).run(lid);
   res.status(204).end();

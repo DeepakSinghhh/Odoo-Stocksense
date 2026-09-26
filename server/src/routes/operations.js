@@ -61,9 +61,15 @@ function detail(opId) {
   const lines = db.prepare(`SELECT l.*, p.name AS product_name, p.sku, p.uom
     FROM operation_lines l JOIN products p ON p.id = l.product_id WHERE l.operation_id = ? ORDER BY l.id`).all(opId);
   const avail = availability({ ...op, lines });
+  // A done adjustment keeps what the system believed at count time: counted − ledger difference.
+  const recorded = (productId) => db.prepare(`SELECT COALESCE(SUM(CASE WHEN to_location_id = @loc THEN quantity
+      WHEN from_location_id = @loc THEN -quantity END), 0) AS diff
+    FROM moves WHERE operation_id = @op AND product_id = @product`).get({ loc: op.source_location_id, op: op.id, product: productId }).diff;
   op.lines = lines.map((l) => ({
     ...l,
-    on_hand: onHand(l.product_id, op.source_location_id),
+    on_hand: op.type === 'adjustment' && op.status === 'done'
+      ? l.quantity - recorded(l.product_id)
+      : onHand(l.product_id, op.source_location_id),
     free: Number.isFinite(avail[l.product_id].free) ? avail[l.product_id].free : null,
     short: ['done', 'canceled'].includes(op.status) ? 0 : avail[l.product_id].short,
   }));

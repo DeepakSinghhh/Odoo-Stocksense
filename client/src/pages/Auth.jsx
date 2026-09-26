@@ -163,27 +163,29 @@ export function Signup() {
   );
 }
 
+// Six independent boxes; `value` is an array so clearing one box never shifts the others.
 function OtpBoxes({ value, onChange }) {
   const refs = useRef([]);
-  const digits = value.padEnd(6, ' ').slice(0, 6).split('');
-  const setAt = (i, d) => {
-    const next = digits.map((x, j) => (j === i ? d : x)).join('').replace(/ /g, '');
-    onChange(next);
-  };
+  const setAt = (i, d) => onChange(value.map((x, j) => (j === i ? d : x)));
   return (
     <div className="otp" onPaste={(e) => {
       const t = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-      if (t) { e.preventDefault(); onChange(t); refs.current[Math.min(t.length, 5)]?.focus(); }
+      if (t) { e.preventDefault(); onChange([...t.padEnd(6, ' ')].map((c) => c.trim())); refs.current[Math.min(t.length, 5)]?.focus(); }
     }}>
-      {digits.map((d, i) => (
-        <input key={i} ref={(el) => { refs.current[i] = el; }} inputMode="numeric" maxLength={1} aria-label={`OTP digit ${i + 1}`}
-          value={d.trim()}
+      {value.map((d, i) => (
+        <input key={i} ref={(el) => { refs.current[i] = el; }} inputMode="numeric" maxLength={2} aria-label={`OTP digit ${i + 1}`}
+          value={d}
+          onFocus={(e) => e.target.select()}
           onChange={(e) => {
             const v = e.target.value.replace(/\D/g, '').slice(-1);
-            setAt(i, v || ' ');
+            setAt(i, v);
             if (v) refs.current[i + 1]?.focus();
           }}
-          onKeyDown={(e) => { if (e.key === 'Backspace' && !d.trim()) refs.current[i - 1]?.focus(); }} />
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace' && !d) refs.current[i - 1]?.focus();
+            if (e.key === 'ArrowLeft') refs.current[i - 1]?.focus();
+            if (e.key === 'ArrowRight') refs.current[i + 1]?.focus();
+          }} />
       ))}
     </div>
   );
@@ -195,7 +197,7 @@ export function Forgot() {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [devOtp, setDevOtp] = useState('');
-  const [form, setForm] = useState({ otp: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ otp: Array(6).fill(''), password: '', confirmPassword: '' });
   const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -217,11 +219,12 @@ export function Forgot() {
     e.preventDefault();
     setError('');
     setErrors({});
-    if (form.otp.length !== 6) { setErrors({ otp: 'Enter the 6-digit code' }); return; }
+    const otp = form.otp.join('');
+    if (!/^\d{6}$/.test(otp)) { setErrors({ otp: 'Enter the 6-digit code' }); return; }
     if (form.password !== form.confirmPassword) { setErrors({ confirmPassword: 'Passwords do not match' }); return; }
     setBusy(true);
     try {
-      const r = await api.post('/auth/reset-password', { email, ...form });
+      const r = await api.post('/auth/reset-password', { email, ...form, otp });
       toast(r.message, 'ok', 'Password reset');
       navigate('/login');
     } catch (err) { setErrors(err.fields); setError(err.message); } finally { setBusy(false); }

@@ -116,8 +116,18 @@ export function Modal({ title, onClose, children, footer, wide }) {
 /* [NEW] Title ............ 🔍 ☰ ▦ — the header strip every wireframe list uses. */
 export function PageHead({ title, note, onNew, newLabel = 'New', search, onSearch, view, onView, children, searchHint }) {
   const [open, setOpen] = useState(Boolean(search));
+  // The box owns its text so fast typing never races the URL; results follow after a short pause.
+  const [text, setText] = useState(search || '');
   const ref = useRef(null);
   useEffect(() => { if (open) ref.current?.focus(); }, [open]);
+  useEffect(() => { setText((t) => (t.trim() === (search || '').trim() ? t : search || '')); }, [search]);
+  useEffect(() => {
+    if (!onSearch || text === (search || '')) return undefined;
+    const t = setTimeout(() => onSearch(text), 220);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+  const clear = () => { setText(''); onSearch(''); };
   return (
     <div className="pagehead">
       {onNew && <button className="btn new" onClick={onNew}>{newLabel}</button>}
@@ -127,11 +137,11 @@ export function PageHead({ title, note, onNew, newLabel = 'New', search, onSearc
         {onSearch && (open ? (
           <div className="search">
             <Icon.Search />
-            <input ref={ref} value={search} placeholder={searchHint || 'Search reference or contact'}
-              onChange={(e) => onSearch(e.target.value)}
-              onKeyDown={(e) => e.key === 'Escape' && (onSearch(''), setOpen(false))}
-              onBlur={() => !search && setOpen(false)} />
-            {search && <button className="iconbtn" style={{ width: 22, height: 22, border: 0 }} onClick={() => onSearch('')} aria-label="Clear search"><Icon.X /></button>}
+            <input ref={ref} value={text} placeholder={searchHint || 'Search reference or contact'}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') { clear(); setOpen(false); } if (e.key === 'Enter') onSearch(text); }}
+              onBlur={() => !text && setOpen(false)} />
+            {text && <button className="iconbtn" style={{ width: 22, height: 22, border: 0 }} onClick={clear} aria-label="Clear search"><Icon.X /></button>}
           </div>
         ) : (
           <button className="iconbtn" onClick={() => setOpen(true)} aria-label="Search" title="Search"><Icon.Search /></button>
