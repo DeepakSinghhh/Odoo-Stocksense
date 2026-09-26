@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { api } from '../api.js';
+import { useLive } from '../live.jsx';
 import * as Icon from './icons.jsx';
 
 export const OP_TYPES = {
@@ -25,6 +26,7 @@ export function useApi(path, params) {
   const key = JSON.stringify([path, params]);
   const [state, setState] = useState({ data: null, error: null, loading: true });
   const [tick, setTick] = useState(0);
+  const { version } = useLive();
   useEffect(() => {
     if (!path) return;
     let live = true;
@@ -34,7 +36,7 @@ export function useApi(path, params) {
       .catch((error) => live && setState((s) => ({ ...s, error, loading: false })));
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, tick]);
+  }, [key, tick, version]);
   const reload = useCallback(() => setTick((t) => t + 1), []);
   return { ...state, reload };
 }

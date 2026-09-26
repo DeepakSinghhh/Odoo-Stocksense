@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../auth.jsx';
+import { useLive } from '../live.jsx';
 import { useClickAway, OP_TYPES } from './kit.jsx';
 import * as Icon from './icons.jsx';
 
@@ -33,6 +34,7 @@ export default function Layout() {
   const closeMenu = useCallback(() => setMenu(false), []);
   const menuRef = useClickAway(closeMenu);
   const [theme, setTheme] = useState(savedTheme());
+  const live = useLive();
 
   const toggleTheme = () => {
     const next = theme === 'day' ? 'night' : 'day';
@@ -58,6 +60,9 @@ export default function Layout() {
             <NavLink to="/settings/locations">Locations</NavLink>
           </Dropdown>
         </nav>
+        <span className={`live ${live.status}`} title={live.status === 'live' ? 'Live: changes from anyone appear instantly' : 'Reconnecting…'}>
+          <i key={live.pulse} />{live.status === 'live' ? 'Live' : 'Offline'}
+        </span>
         <div className="nav-item" ref={menuRef}>
           <button className="avatar" onClick={() => setMenu((m) => !m)} aria-label="Profile menu" aria-expanded={menu}>
             {(user?.name || user?.loginId || '?')[0].toUpperCase()}

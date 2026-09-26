@@ -728,3 +728,12 @@ tr:hover .pencil { opacity: 1; }
 .textarea { resize: vertical; min-height: 60px; }
 .panel h3:not([class]) { font-size: 13px; }
 .ledger th.right, .ledger td.right { text-align: right; }
+
+/* Live indicator: the dot flashes whenever a change arrives from the server */
+.live { display: inline-flex; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+.live.live { color: var(--in); }
+.live.live i { background: var(--in); box-shadow: 0 0 0 0 var(--in); animation: ping 0.9s ease-out; }
+.live.reconnecting { color: var(--amber); }
+.live.reconnecting i { background: var(--amber); animation: blink 1s infinite; }
+@keyframes ping { from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--in) 70%, transparent); } to { box-shadow: 0 0 0 10px transparent; } }

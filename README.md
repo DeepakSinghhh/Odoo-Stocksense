@@ -35,6 +35,7 @@ the server console and shown on the reset screen (dev mode only), so the flow al
 | **Products (Stock)** | Product, per unit cost, on hand, free to use. Update stock right from the row: every correction is recorded as an adjustment in the ledger. Create products with SKU, category, UoM, cost, reorder level and optional initial stock. Per-location breakdown on click. |
 | **Move History** | Every move from → to, one row per product; incoming in green, outgoing in red. Search, filter by direction/status, Kanban by status. |
 | **Settings → Warehouse / Locations** | Warehouse: name, short code, address. Location: name, short code, warehouse (racks, rooms, floors). |
+| **Real-time** | Every open screen updates the moment anyone changes stock: no refresh. The server pushes a Server-Sent Event after each write; the dashboard counters flip, lists and stock numbers reload, and an open receipt/delivery shows a live toast if someone else validates it. The **LIVE** badge in the top bar blinks on each update. |
 | **Profile menu** | My Profile (edit, change password), day/night theme, Logout. |
 
 ## How the stock engine works
@@ -62,7 +63,7 @@ the server console and shown on the reset screen (dev mode only), so the flow al
 | | |
 |---|---|
 | Frontend | React 19 + Vite, React Router, hand-written CSS design system (no UI kit), self-hosted fonts |
-| Backend | Node + Express 5, Zod validation, JWT auth, bcrypt, Nodemailer |
+| Backend | Node + Express 5, Zod validation, JWT auth, bcrypt, Nodemailer, Server-Sent Events for live updates |
 | Database | SQLite via better-sqlite3 (zero setup) with foreign keys, CHECK constraints, indexes and transactions |
 
 ```

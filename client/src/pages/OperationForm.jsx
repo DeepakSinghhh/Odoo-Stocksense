@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { useToast } from '../ui/toast.jsx';
+import { useLive } from '../live.jsx';
 import { useApi, Field, Trail, OP_TYPES, typeFromSlug, fmtQty, ProductPicker } from '../ui/kit.jsx';
 import * as Icon from '../ui/icons.jsx';
 
@@ -50,6 +51,18 @@ export default function OperationForm() {
     }).catch((e) => { toast(e.message, 'error'); navigate(`/operations/${slug}`); });
     return () => { live = false; };
   }, [id, isNew, type, slug, navigate, toast]);
+
+  // Someone else validated/edited this document: pull the fresh copy unless we have unsaved edits.
+  const { version } = useLive();
+  useEffect(() => {
+    if (isNew || dirty || busy || !version) return;
+    api.get(`/operations/${id}`).then((r) => {
+      if (op && op.status !== r.status) toast(`${r.reference} is now ${r.status}`, 'warn', 'Updated live');
+      setOp(r);
+      setForm(toForm(r));
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [version]);
 
   const status = op?.status || 'draft';
   const locked = ['done', 'canceled'].includes(status);

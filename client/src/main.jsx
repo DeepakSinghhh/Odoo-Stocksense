@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 import { AuthProvider } from './auth.jsx';
+import { LiveProvider } from './live.jsx';
 import { ToastProvider } from './ui/toast.jsx';
 import { applyTheme, savedTheme } from './ui/Layout.jsx';
 import '@fontsource-variable/archivo/wdth';
@@ -19,9 +20,11 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
+        <LiveProvider>
+          <ToastProvider>
+            <App />
+          </ToastProvider>
+        </LiveProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

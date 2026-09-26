@@ -12,12 +12,15 @@ import masterRoutes from './routes/masters.js';
 import operationRoutes from './routes/operations.js';
 import moveRoutes from './routes/moves.js';
 import dashboardRoutes from './routes/dashboard.js';
+import { eventsHandler, broadcastWrites } from './services/events.js';
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '200kb' }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/events', eventsHandler);
+app.use('/api', broadcastWrites);
 app.use('/api/auth', authRoutes);
 app.use('/api', requireAuth, masterRoutes);
 app.use('/api/operations', requireAuth, operationRoutes);
