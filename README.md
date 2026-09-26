@@ -348,19 +348,6 @@ without anyone touching it.
 - Passwords are hashed (bcrypt); OTPs are hashed, expire after 10 minutes, allow 5 attempts and are single-use;
   every API call requires a valid session token.
 
-## 5-minute demo script
-
-Follows the example in the problem statement:
-1. **Sign in** as `admin01` and show the dashboard cards, KPIs and chart.
-2. **Receive** 100 kg Steel Rods from *Tata Steel*: New receipt → To Do → Validate → stock **+100**. Print it.
-3. **Move** them to production: internal transfer WH/Stock1 → WH/Prod. Total unchanged, location updated.
-4. **Deliver** Steel Frames: first type too many, so the line turns red and the order waits; reduce it,
-   Check Availability → Validate → stock **−20**. Print the slip.
-5. **Adjust** damaged items: count 3 kg less at WH/Prod → **−3** logged.
-6. Open **Move History**: every step is there (green in, red out).
-7. **Real-time:** open a second window signed in as `ravi.k`, validate something there, and watch the first window update.
-
----
 
 ## Run it locally
 
