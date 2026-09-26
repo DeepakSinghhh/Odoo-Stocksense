@@ -21,7 +21,33 @@ Production-style single process: `npm run build && npm start` → http://localho
 `npm run seed` resets the database at any time.
 
 OTP emails: copy `server/.env.example` to `server/.env` and fill in `SMTP_*`. Without SMTP the code is printed in
-the server console and shown on the reset screen (dev mode only), so the flow always works in a demo.
+the server console and shown on the reset screen, so the flow always works in a demo.
+
+## Deploy
+
+### Render (free, ~5 minutes)
+1. Sign in at [render.com](https://render.com) with GitHub.
+2. **New → Blueprint** → pick `DeepakSinghhh/Odoo-Stocksense` → **Apply**. `render.yaml` sets everything up
+   (build, start, health check, a random `JWT_SECRET`).
+3. Wait for the build to finish and open the `https://stocksense-xxxx.onrender.com` URL. Demo data is created
+   automatically on first start; sign in with `admin01` / `Admin@1234`.
+
+Free-tier notes: the service sleeps after 15 minutes idle (the first visit then takes ~30s to wake), and
+it has no persistent disk, so the database resets to the demo data whenever the service restarts or redeploys.
+Open the link a minute before presenting.
+
+### Railway / Fly.io / any Docker host
+The `Dockerfile` builds the client and runs the server on port 8080 with the database at `/data/stocksense.db`.
+Mount a volume at `/data` to keep data across deploys.
+
+### Environment variables
+| Variable | Purpose |
+|---|---|
+| `JWT_SECRET` | Signing key for sessions (set a long random value) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Email the password-reset OTP |
+| `OTP_FALLBACK=off` | Stop showing the OTP on screen when email isn't configured |
+| `RESEED_ON_START=true` | Reset to demo data on every start |
+| `DB_FILE` | Where the SQLite file lives |
 
 ## What's in it
 
