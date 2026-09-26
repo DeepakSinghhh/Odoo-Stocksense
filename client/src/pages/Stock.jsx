@@ -28,6 +28,15 @@ function ProductModal({ product, categories, locations, onClose, onSaved, reload
     } catch (e) { toast(e.message, 'error'); }
   };
 
+  const remove = async () => {
+    if (!window.confirm(`Delete [${product.sku}] ${product.name}? This cannot be undone.`)) return;
+    try {
+      await api.del(`/products/${product.id}`);
+      toast(`[${product.sku}] ${product.name} deleted`, 'warn');
+      onSaved();
+    } catch (err) { toast(err.message, 'error'); }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
@@ -49,7 +58,11 @@ function ProductModal({ product, categories, locations, onClose, onSaved, reload
 
   return (
     <Modal title={editing ? 'Edit product' : 'New product'} onClose={onClose}
-      footer={<><button className="btn ghost" onClick={onClose}>Discard</button><button className="btn primary" form="pform" disabled={busy}>Save</button></>}>
+      footer={<>
+        {editing && <button className="btn danger" style={{ marginRight: 'auto' }} disabled={busy} onClick={remove}><Icon.Trash /> Delete</button>}
+        <button className="btn ghost" onClick={onClose}>Discard</button>
+        <button className="btn primary" form="pform" disabled={busy}>Save</button>
+      </>}>
       <form id="pform" onSubmit={submit} className="grid-2" style={{ gap: '18px 28px' }}>
         <Field label="Product name" error={errors.name}><input className="input" autoFocus value={f.name} onChange={set('name')} /></Field>
         <Field label="SKU / Code" error={errors.sku}><input className="input mono" value={f.sku} onChange={set('sku')} placeholder="DESK001" /></Field>

@@ -169,6 +169,15 @@ export default function OperationForm() {
         <button className="btn" disabled={status !== 'done'} title={status === 'done' ? 'Print' : 'Printable once it is Done'}
           onClick={() => window.open(`/print/${op.id}`, '_blank')}><Icon.Printer /> Print</button>
         {!isNew && !locked && <button className="btn danger" disabled={busy} onClick={() => act('cancel')}>Cancel</button>}
+        {!isNew && status === 'draft' && (
+          <button className="btn danger" disabled={busy} title="Delete this draft"
+            onClick={() => run(async () => {
+              if (!window.confirm(`Delete draft ${reference}?`)) return;
+              await api.del(`/operations/${op.id}`);
+              toast(`${reference} deleted`, 'warn');
+              navigate(`/operations/${slug}`);
+            })}><Icon.Trash /></button>
+        )}
         <div className="grow" />
         <Trail steps={t.trail} status={status} />
       </div>
