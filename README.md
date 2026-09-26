@@ -1,6 +1,9 @@
 # StockSense
 
-**A modular inventory management system that replaces registers and spreadsheets with one live stock ledger.
+**A modular inventory management system that replaces registers and spreadsheets with one live stock ledger.**
+
+### 🔗 Live demo: **https://stocksense-flto.onrender.com**
+Sign in with **`admin01` / `Admin@1234`** (or sign up your own account). Open it in two windows to watch changes appear live.
 
 ![Dashboard](docs/screenshots/dash.png)
 
